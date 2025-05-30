@@ -1,5 +1,5 @@
 [project]
-name = "cnn_research"
+name = "research-cnn"
 version = "0.0.1"
 description = "Research framework and utilities for studying Convolutional Neural Networks"
 authors = [{name = "Alberto Perea León", email = "eralon.dev@gmail.com"}]
@@ -9,10 +9,9 @@ requires-python = ">=3.10"
 
 # Core runtime dependencies
 dependencies = [
-    "torch>=2.2.0",          # Deep‑learning engine
-    "torchvision>=0.17.0",   # CNN datasets & models
+    "tensorflow>=2.19",     # ML Framework
     "numpy>=1.26",          # Tensor algebra helpers
-    "polars>=1.30",          # Data wrangling
+    "pandas>=2.2.3",         # Data wrangling
     "matplotlib>=3.9",      # Plotting
     "scikit-learn>=1.4",    # Metrics & helpers
     "jupyterlab>=4.1",      # Interactive notebooks
@@ -26,7 +25,6 @@ Homepage = "https://github.com/perealberto/cnn_research"
 # Extras useful during development
 dev = [
     "black>=25.1",          # Code formatter
-    "ruff>=0.3",            # Linter & import sorter
     "nbstripout>=0.8",      # Clean notebook outputs before commit
     "pre-commit>=3.7",      # Git hooks manager
 ]
@@ -41,7 +39,3 @@ allow-direct-references = true
 [tool.black]
 line-length = 88
 target-version = ["py311"]
-
-[tool.ruff]
-line-length = 88
-select = ["E", "F", "I", "UP", "D", "B"]

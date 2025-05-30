@@ -1,34 +1,28 @@
 repos:
-  # Sync notebooks ──────────────────────────────────────────
+  # Sync .py in notebooks/
   - repo: https://github.com/mwouts/jupytext
     rev: v1.17.1
     hooks:
       - id: jupytext
         name: jupytext-sync
-        entry: jupytext --sync --quiet # update pairs
+        entry: jupytext --sync --quiet
         language: python
-        pass_filenames: true
+        files: ^notebooks/.*\\.py$
         stages: [pre-commit]
 
-  # Clear cells before the commit ───────────────────────────────
+  # Clear outputs from .ipynb
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
       - id: nbstripout
         name: strip-notebook-outputs
-        args: [--extra-keys=metadata.execution] # delete metadata
-        files: "\\.ipynb$"
+        args: [--extra-keys=metadata.execution]
+        files: \\.ipynb$
         stages: [pre-commit]
 
-  # QA (Black + Ruff) ──────────────────────────────
+  # Formatting Black
   - repo: https://github.com/psf/black
     rev: 25.1.0
     hooks:
       - id: black
         language_version: python3.11
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.12
-    hooks:
-      - id: ruff
-        args: [check, --fix]
