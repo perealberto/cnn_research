@@ -1,5 +1,5 @@
 # %% [markdown]
-# # Simple Neural Network
+# # Simple Convolutional Neural Network
 
 # %%
 import matplotlib.pyplot as plt
@@ -11,22 +11,33 @@ import polars as pl
 # import mnist dataset
 from rcnn.datasets import get_mnist_data
 
-(x_train, y_train), (x_test, y_test) = get_mnist_data(flatten=True)
+(x_train, y_train), (x_test, y_test) = get_mnist_data()
+
+# add color channel (28, 28, 1)
+if x_train.ndim == 3:
+    x_train = x_train[..., np.newaxis]
+    x_test = x_test[..., np.newaxis]
+
+print(f"Train shape: {x_train.shape}")
+print(f"Test shape: {x_test.shape}")
 
 # %%
-# create a simple model
+# create cnn model
 model = tf.keras.Sequential(
     [
-        tf.keras.layers.Input(shape=(784,)),
+        tf.keras.layers.Input(shape=(28, 28, 1)),
+        tf.keras.layers.Conv2D(32, kernel_size=3, activation="relu"),
+        tf.keras.layers.MaxPooling2D(pool_size=2),
+        tf.keras.layers.Conv2D(64, kernel_size=3, activation="relu"),
+        tf.keras.layers.MaxPooling2D(pool_size=2),
+        tf.keras.layers.Flatten(),
         tf.keras.layers.Dense(128, activation="relu"),
         tf.keras.layers.Dense(10, activation="softmax"),
     ]
 )
 
 model.compile(
-    optimizer="adam",
-    loss="sparse_categorical_crossentropy",
-    metrics=["accuracy"],
+    optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
 )
 
 model.summary()
@@ -66,5 +77,3 @@ print_classification_report(y_test, y_pred)
 
 # %%
 plot_confusion_matrix(y_test, y_pred, normalize=True)
-
-# %%
