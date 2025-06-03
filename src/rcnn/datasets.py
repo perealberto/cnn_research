@@ -17,12 +17,13 @@ from __future__ import annotations
 
 import numpy as np
 from tensorflow.keras.datasets import mnist
+from tensorflow.keras.utils import to_categorical
 
 __all__ = ["get_mnist_data"]
 
 
 def get_mnist_data(
-    flatten: bool = False,
+    flatten: bool = False, onehot: bool = False
 ) -> tuple[tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]]:
     """Return *train* and *test* splits of MNSIT dataset.
 
@@ -30,6 +31,8 @@ def get_mnist_data(
     ----------
     flatten
         Whether flat each image 28x28 into a 784 array (default: ``False``).
+    onehot:
+        Whether apply onehot encoding. Ex: [2] -> [0,0,1,0].
 
     Returns
     -------
@@ -48,5 +51,9 @@ def get_mnist_data(
     if flatten:
         x_train = x_train.reshape(x_train.shape[0], -1)
         x_test = x_test.reshape(x_test.shape[0], -1)
+
+    if onehot:
+        y_train = to_categorical(y_train)
+        y_test = to_categorical(y_test)
 
     return (x_train, y_train), (x_test, y_test)
