@@ -68,14 +68,7 @@ def plot_history(
         plt.figure(figsize=(6, 4))
         for key in metrics:
             if key in history:
-                plt.plot(
-                    history[key],
-                    label=(
-                        f"train_{key}"
-                        if "val_" not in key
-                        else f"test_{key.split('_')[1]}"
-                    ),
-                )
+                plt.plot(history[key], label=key)
         plt.xlabel("Epoch")
         plt.ylabel("Value")
         plt.legend()
@@ -88,8 +81,8 @@ def plot_history(
             if "val_" in key or key not in history:
                 continue
             plt.figure(figsize=(6, 4))
-            plt.plot(history[key], label="train")
-            plt.plot(history["val_" + key], label="test")
+            plt.plot(history[key], label=key)
+            plt.plot(history["val_" + key], label="val_" + key)
             plt.title(key)
             plt.xlabel("Epoch")
             plt.ylabel("Value")

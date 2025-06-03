@@ -66,5 +66,3 @@ print_classification_report(y_test, y_pred)
 
 # %%
 plot_confusion_matrix(y_test, y_pred, normalize=True)
-
-# %%

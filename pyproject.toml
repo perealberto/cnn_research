@@ -17,6 +17,8 @@ dependencies = [
     "scikit-learn>=1.4",    # Metrics & helpers
     "jupyterlab>=4.1",      # Interactive notebooks
     "jupytext>=1.16",       # Notebook<->script pairing
+    "shap>=0.47",           # Output ML explainer
+    "pyyaml>=6.0.2"
 ]
 
 [project.urls]
