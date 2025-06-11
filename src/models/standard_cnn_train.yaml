@@ -9,8 +9,11 @@ model:
     - Flatten: {}
     - Dense: { units: 128, activation: relu }
     - Dense: { units: 10, activation: softmax }
-
 compile:
   optimizer: adam
   loss: sparse_categorical_crossentropy
   metrics: [accuracy]
+train:
+  epochs: 10
+  batch_size: 128
+  validation_split: 0.1

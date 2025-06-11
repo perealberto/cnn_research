@@ -1,0 +1,18 @@
+model:
+  type: Sequential
+  input_shape: [28, 28, 1]
+  layers:
+    - Conv2D: { filters: 96, kernel_size: 5, activation: relu, padding: same }
+    - Conv2D: { filters: 192, kernel_size: 5, activation: relu, padding: same }
+    - MaxPooling2D: { pool_size: 2 }
+    - Flatten: {}
+    - Dense: { units: 384, activation: relu }
+    - Dense: { units: 10, activation: linear }
+compile:
+  optimizer: adam
+  loss: SparseCategoricalCrossentropy
+  metrics: [accuracy]
+train:
+  epochs: 20
+  batch_size: 256
+  validation_split: 0.05

@@ -174,3 +174,9 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# keras
+.keras
+src/models/saved/*
+
+todo.md

@@ -5,20 +5,23 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from tqdm import tqdm
+import tensorflow as tf
 
 from rcnn.factory import build_model_from_file
 from rcnn.datasets import get_mnist_data
-from rcnn.predictions import confusion_scores, compute_saliency
+from rcnn.predictions import confusion_scores, compute_saliency, average_saliency
 
-# %%
-# MNIST dataset
+# dataset
 (x_train, y_train), (x_test, y_test) = get_mnist_data()
 
+# %% [markdown]
+# ## Concept of Saliency Map
+
+# %%
 # load and train model
 config_file = "../src/models/simple_cnn.yaml"
-model = build_model_from_file(config_file)
-
-history = model.fit(x_train, y_train, epochs=10, batch_size=128, validation_split=0.1)
+model, _ = build_model_from_file(config_file)
 
 # %%
 # predict a selected image
@@ -42,7 +45,7 @@ sal = (sal - tf.reduce_min(sal)) / (tf.reduce_max(sal) - tf.reduce_min(sal) + 1e
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 axes[0].imshow(image, cmap="gray")
-i = axes[1].imshow(sal, cmap="jet", alpha=0.8)
+i = axes[1].imshow(sal, cmap="jet", alpha=0.6)
 fig.colorbar(i)
 axes[0].set_axis_off()
 axes[1].set_axis_off()
@@ -52,16 +55,10 @@ plt.show()
 # ## Display of the N most confusing
 
 # %%
-# load dataset
-(x_train, y_train), (x_test, y_test) = get_mnist_data()
-
 # load and train model
 print("TRAINING MODEL")
-config_file = "../src/models/simple_cnn.yaml"
-model = build_model_from_file(config_file)
-history = model.fit(
-    x_train, y_train, epochs=10, batch_size=128, validation_split=0.1, verbose=1
-)
+config_file = "../src/models/simple_cnn_train.yaml"
+model, _ = build_model_from_file(config_file)
 
 # %%
 # make predictions
@@ -74,9 +71,9 @@ print("RESULTS...")
 wrong_sorted, scores = confusion_scores(probs, y_test)
 
 # visualization N most confusing
-N = 20
+N = 10
 plt.figure(figsize=(15, 2.2 * N))
-for rank, (idx, sc) in enumerate(zip(wrong_sorted[:N], scores[:N])):
+for rank, (idx, sc) in enumerate(zip(wrong_sorted[-N:], scores[-N:])):
     img = x_test[idx]
     pred = np.argmax(probs[idx])
     true = y_test[idx]
@@ -96,7 +93,8 @@ for rank, (idx, sc) in enumerate(zip(wrong_sorted[:N], scores[:N])):
     sal_map = compute_saliency(model, x_test[idx], pred)
     plt.subplot(N, 3, 3 * rank + 3)
     plt.imshow(img, cmap="gray")
-    plt.imshow(sal_map, cmap="jet", alpha=0.8)
+    plt.imshow(sal_map, cmap="jet", alpha=0.6)
+    plt.colorbar()
     plt.axis("off")
 
 plt.tight_layout()
@@ -109,9 +107,53 @@ plt.bar(np.arange(10), probs[i])
 plt.xticks(np.arange(10))
 plt.show()
 
+# %%
+
 # %% [markdown]
-# # todo
-# - probar con diferentes configuraciones del model (overfitted, underfitted, normal) y el mismo número a ver si se reflejan cambios en los píxeles
-# - printear saliency map de una mala predicción, con una buena predicción del numero mal predicho y el esperado
+# ## Average Saliency Map
 
 # %%
+# standard model
+std_model, _ = build_model_from_file(
+    "../src/models/standard_cnn_train.yaml", x_train, y_train
+)
+plt.figure(figsize=(15, 6))
+for n in tqdm(range(10)):
+    avg_sal, n_indices = average_saliency(std_model, x_test, y_test, n)
+    ax = plt.subplot(2, 5, n + 1)
+    ax.imshow(avg_sal, cmap="jet")
+    ax.set_title(f"Digit {n}\n(n={n_indices})", fontsize=10)
+    ax.axis("off")
+plt.suptitle("Average Saliency Maps Per Digit (Test set)", fontsize=14)
+plt.tight_layout()
+plt.show()
+
+# %%
+# complex model
+complex_model = tf.keras.models.load_model("../src/models/saved/overfit_cnn.keras")
+plt.figure(figsize=(15, 6))
+for n in tqdm(range(10)):
+    avg_sal, n_indices = average_saliency(complex_model, x_test, y_test, n)
+    ax = plt.subplot(2, 5, n + 1)
+    ax.imshow(avg_sal, cmap="jet")
+    ax.set_title(f"Digit {n}\n(n={n_indices})", fontsize=10)
+    ax.axis("off")
+plt.suptitle("Average Saliency Maps Per Digit (Test set)", fontsize=14)
+plt.tight_layout()
+plt.show()
+
+# %%
+# simple2 model
+simple2_model, _ = build_model_from_file(
+    "../src/models/underfit_cnn.yaml", x_train, y_train
+)
+plt.figure(figsize=(15, 6))
+for n in tqdm(range(10)):
+    avg_sal, n_indices = average_saliency(simple2_model, x_test, y_test, n)
+    ax = plt.subplot(2, 5, n + 1)
+    ax.imshow(avg_sal, cmap="jet")
+    ax.set_title(f"Digit {n}\n(n={n_indices})", fontsize=10)
+    ax.axis("off")
+plt.suptitle("Average Saliency Maps Per Digit (Test set)", fontsize=14)
+plt.tight_layout()
+plt.show()
